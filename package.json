@@ -1,0 +1,12 @@
+{
+  "name": "e-botar-lite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "E-Botar Lite - Blockchain University Student Voting System",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
+  }
+}

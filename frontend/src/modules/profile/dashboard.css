@@ -1,0 +1,586 @@
+/**
+ * Dashboard Page Styles - Modern & Clean Design
+ */
+
+.dashboard-page {
+  padding: var(--spacing-xl) 0 var(--spacing-2xl);
+}
+
+/* Hero Section */
+.dashboard-hero-section {
+  text-align: center;
+  padding: var(--spacing-2xl) 0 var(--spacing-2xl);
+  background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+  border-radius: var(--radius-2xl);
+  margin-bottom: var(--spacing-2xl);
+  color: var(--white);
+}
+
+.dashboard-hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+}
+
+.dashboard-hero-subtitle {
+  font-size: var(--font-size-lg);
+  opacity: 0.95;
+  margin-bottom: var(--spacing-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+.dashboard-hero-year {
+  display: inline-block;
+  background: color-mix(in srgb, var(--white) 20%, transparent);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.dashboard-hero-year-selector {
+  display: inline-block;
+}
+
+.dashboard-hero-year-select {
+  background: color-mix(in srgb, var(--white) 20%, transparent);
+  border: 2px solid color-mix(in srgb, var(--white) 30%, transparent);
+  color: var(--white);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 1px;
+  cursor: pointer;
+  outline: none;
+  transition: all var(--transition-slow) ease;
+}
+
+.dashboard-hero-year-select:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--white) 30%, transparent);
+  border-color: color-mix(in srgb, var(--white) 50%, transparent);
+}
+
+.dashboard-hero-year-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dashboard-hero-year-select option {
+  background: var(--white);
+  color: var(--text-primary);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-full);
+}
+
+/* Spacing between "No Active Election" and "Current Administration" */
+.dashboard-empty-election-wrap {
+  margin-bottom: var(--spacing-2xl);
+}
+
+/* Card Styles */
+.dashboard-winners-card,
+.dashboard-candidates-section,
+.dashboard-election-actions-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-winners-card {
+  margin-top: var(--spacing-xl);
+}
+
+.dashboard-card-header-custom {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--gray-100);
+}
+
+.dashboard-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard-winner-icon {
+  background: linear-gradient(135deg, var(--warning-soft-border) 0%, var(--warning-color) 100%);
+  color: var(--white);
+}
+
+.dashboard-candidates-header-icon {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: var(--white);
+}
+
+.dashboard-election-icon {
+  background: linear-gradient(135deg, var(--success-color) 0%, var(--success-hover) 100%);
+  color: var(--white);
+}
+
+.dashboard-card-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.dashboard-card-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: var(--spacing-xs) 0 0;
+}
+
+.dashboard-card-body-custom {
+  text-align: center;
+}
+
+.dashboard-text-muted-custom {
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-base);
+}
+
+
+/* Statistics Grid */
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-stat-card-modern {
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-2xl);
+  padding: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.dashboard-stat-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard-positions-icon {
+  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-purple-dark) 100%);
+  color: var(--white);
+}
+
+.dashboard-candidates-icon {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: var(--white);
+}
+
+.dashboard-votes-icon {
+  background: linear-gradient(135deg, var(--success-color) 0%, var(--success-hover) 100%);
+  color: var(--white);
+}
+
+.dashboard-stat-content {
+  flex: 1;
+}
+
+.dashboard-stat-value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: var(--spacing-xs);
+}
+
+.dashboard-stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Candidates Section */
+.dashboard-positions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.dashboard-position-group {
+  background: var(--gray-50);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+}
+
+.dashboard-position-name {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--brand-green);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--success-soft-border);
+}
+
+.dashboard-candidates-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+  justify-content: center;
+}
+
+.dashboard-candidate-item {
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  transition: all var(--transition-fast) ease;
+  cursor: pointer;
+  text-align: center;
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.dashboard-candidate-item:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.dashboard-candidate-photo {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--white);
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  border: 4px solid var(--info-soft-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-candidate-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.dashboard-candidate-fullname {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+  text-align: center;
+  width: 100%;
+}
+
+.dashboard-candidate-party {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  background: var(--gray-100);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  white-space: normal;
+}
+
+/* Election Dates */
+.dashboard-election-dates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+  border-bottom: 2px solid var(--gray-100);
+}
+
+.dashboard-date-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  background: var(--gray-50);
+  padding: 1.25rem;
+  border-radius: var(--radius-xl);
+}
+
+.dashboard-date-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard-start-icon {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  color: var(--white);
+}
+
+.dashboard-end-icon {
+  background: linear-gradient(135deg, var(--success-color) 0%, var(--success-hover) 100%);
+  color: var(--white);
+}
+
+.dashboard-date-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.dashboard-date-value {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Action Buttons */
+.dashboard-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.dashboard-btn-custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast) ease;
+}
+
+.dashboard-btn-custom.dashboard-btn-primary {
+  background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-primary:hover {
+  background: linear-gradient(135deg, var(--brand-green-dark) 0%, var(--brand-green-darker) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-secondary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-secondary:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-hover) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-info {
+  background: linear-gradient(135deg, var(--gray-500) 0%, var(--gray-600) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-info:hover {
+  background: linear-gradient(135deg, var(--gray-600) 0%, var(--gray-700) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-outline {
+  background: var(--white) !important;
+  color: var(--brand-green) !important;
+  border-color: var(--brand-green) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-outline:hover {
+  background: var(--success-soft-bg-alt) !important;
+  color: var(--brand-green-dark) !important;
+  border-color: var(--brand-green-dark) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-admin {
+  background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-admin:hover {
+  background: linear-gradient(135deg, var(--brand-green-dark) 0%, var(--brand-green-darker) 100%) !important;
+  color: var(--white) !important;
+}
+
+.dashboard-btn-custom.dashboard-btn-outline.inline-flex {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.dashboard-stat-icon.dashboard-indigo {
+  background: var(--primary-soft-bg);
+  color: var(--primary-color);
+}
+
+/* Winners Grid */
+.dashboard-winners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-xl);
+  row-gap: var(--spacing-xl);
+  column-gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+  padding: 0 var(--spacing-sm);
+  justify-content: center;
+  max-width: 100%;
+}
+
+.dashboard-winner-item {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background: var(--gray-50);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 280px;
+}
+
+.dashboard-winner-avatar {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 0.75rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--success-color) 0%, var(--success-hover) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 2rem;
+  font-weight: bold;
+  border: 3px solid var(--white);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.dashboard-winner-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.3;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-winner-position {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  min-height: 1.25rem;
+}
+
+.dashboard-winner-badges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
+}
+
+.dashboard-winner-badge {
+  font-size: 0.65rem;
+  color: var(--warning-color);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--warning-soft-bg);
+  border-radius: var(--radius-md);
+  display: inline-block;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.dashboard-winner-party-badge {
+  font-size: 0.7rem;
+  color: var(--success-color);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--success-soft-bg);
+  border-radius: var(--radius-md);
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-hero-section {
+    padding: 2rem 1rem 3rem; /* Add horizontal padding on mobile */
+  }
+  .dashboard-hero-title {
+    font-size: 2rem;
+  }
+  .dashboard-hero-subtitle {
+    font-size: 1rem;
+    padding: 0 1rem; /* Add horizontal padding to prevent text from touching edges */
+  }
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-candidates-row {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-election-dates {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-actions-grid {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-card-header-custom {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .dashboard-winners-card,
+  .dashboard-candidates-section,
+  .dashboard-election-actions-card {
+    padding: var(--spacing-lg);
+  }
+}
+
