@@ -45,6 +45,7 @@ Minor feature release adding automated election simulation tooling, cryptographi
 - **Blockchain Audit Hash Linkage Alignment (`VoteReceiptAuditSerializer`)**: Resolved multi-position election audit table alignment by implementing `_ballot_blocks` in `VoteReceiptAuditSerializer` and adding eager prefetching in `audit()` view. Each row now accurately reflects the ballot's entry `previous_hash` and terminal `current_hash`, ensuring consecutive row-to-row cryptographic continuity without N+1 query overhead.
 - **Receipt Verification Display Robustness**: Fixed issue in [`VerifyReceiptPage.jsx`](frontend/src/modules/voting/pages/VerifyReceiptPage.jsx) to safely handle structured election metadata objects without rendering errors.
 - **Receipt Audit Initial State**: Enhanced [`ReceiptAuditPage.jsx`](frontend/src/modules/admin/pages/ReceiptAuditPage.jsx) to automatically default to the primary election upon initial load.
+- **Browser Tab Favicon Link Alignment**: Updated [`frontend/index.html`](frontend/index.html) to link `/favicon.png` and `/favicon.ico` instead of `/logo.png`, ensuring the browser tab correctly renders the new circular **"E" + Checkmark** favicon.
 - **Git Ignore Hygiene**: Excluded thesis presentation assets (`THESIS_ASSETS.md`, `THESIS_*.md`) from version tracking.
 
 ---
