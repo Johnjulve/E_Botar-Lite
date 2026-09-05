@@ -5,37 +5,12 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Container } from '../../../components/layout';
-import { LoadingSpinner, SearchBar } from '../../../components/common';
+import { LoadingSpinner, SearchBar, Icon } from '../../../components/common';
 import { authService } from '../../../services';
-import { getInitials, formatYearLevelNumeric } from '../../../utils/helpers';
+import { getInitials, formatYearLevelNumeric, parseYearLevelNumber } from '../../../utils/helpers';
+import { useTableSort } from '../../../hooks/useTableSort';
+import { SortableHeader } from '../../../components/common/SortableHeader';
 import '../admin.css';
-
-const Icon = ({ name, size = 20, className = '' }) => {
-  const icons = {
-    users: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-    search: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <circle cx="11" cy="11" r="8"/>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-    ),
-    checkCircle: (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-        <polyline points="22 4 12 14.01 9 11.01"/>
-      </svg>
-    ),
-  };
-
-  return icons[name] || null;
-};
 
 const UserDirectoryPage = () => {
   const [loading, setLoading] = useState(true);
@@ -87,7 +62,41 @@ const UserDirectoryPage = () => {
     }
   };
 
+  const handleToggleActive = async (u) => {
+    try {
+      await authService.toggleUserActive(u.id);
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === u.id
+            ? { ...item, user: { ...item.user, is_active: !item.user?.is_active } }
+            : item
+        )
+      );
+    } catch (error) {
+      console.error('Error toggling active status:', error);
+      alert(error.response?.data?.detail || error.message || 'Failed to update user status.');
+      fetchDirectory();
+    }
+  };
+
+  const handleToggleVerified = async (u) => {
+    const nextVerified = !u.is_verified;
+    try {
+      await authService.setUserVerified(u.id, nextVerified);
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === u.id ? { ...item, is_verified: nextVerified } : item
+        )
+      );
+    } catch (error) {
+      console.error('Error toggling verification status:', error);
+      alert(error.response?.data?.detail || error.message || 'Failed to update verification status.');
+      fetchDirectory();
+    }
+  };
+
   const handleFilterChange = (field, value) => {
+
     setFilters((prev) => ({
       ...prev,
       [field]: value,
@@ -180,7 +189,34 @@ const UserDirectoryPage = () => {
     return data;
   }, [users, filters, searchFields]);
 
+  const getDirectorySortValue = (u, key) => {
+    switch (key) {
+      case 'user':
+        return `${u.user?.first_name || ''} ${u.user?.last_name || ''}`.trim().toLowerCase();
+      case 'contact':
+        return (u.user?.email || '').toLowerCase();
+      case 'course':
+        return (u.course?.code || u.course?.name || u.department?.name || '').toLowerCase();
+      case 'year_level': {
+        const n = parseYearLevelNumber(u.year_level);
+        return n == null ? Number.POSITIVE_INFINITY : n;
+      }
+      case 'status':
+        return u.user?.is_active ? 1 : 0;
+      case 'verified':
+        return u.is_verified ? 1 : 0;
+      default:
+        return '';
+    }
+  };
+
+  const { sortedRows: sortedUsers, sortConfig, handleSort } = useTableSort(
+    filteredUsers,
+    getDirectorySortValue
+  );
+
   const summary = useMemo(() => {
+
     if (!filteredUsers.length) {
       return {
         total: 0,
@@ -372,16 +408,17 @@ const UserDirectoryPage = () => {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>User</th>
-                  <th>Contact</th>
-                  <th>College / Course</th>
-                  <th>Year Level</th>
-                  <th className="text-center">Status</th>
-                  <th className="text-center">Verified</th>
+                  <SortableHeader label="USER" sortKey="user" sortConfig={sortConfig} onSort={handleSort} />
+                  <SortableHeader label="CONTACT" sortKey="contact" sortConfig={sortConfig} onSort={handleSort} />
+                  <SortableHeader label="COLLEGE / COURSE" sortKey="course" sortConfig={sortConfig} onSort={handleSort} />
+                  <SortableHeader label="YEAR LEVEL" sortKey="year_level" sortConfig={sortConfig} onSort={handleSort} />
+                  <SortableHeader label="STATUS" sortKey="status" sortConfig={sortConfig} onSort={handleSort} align="center" />
+                  <SortableHeader label="VERIFIED" sortKey="verified" sortConfig={sortConfig} onSort={handleSort} align="center" />
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map((u) => (
+                {sortedUsers.map((u) => (
+
                   <tr key={u.id}>
                     <td>
                       <div className="admin-user-cell">
@@ -425,29 +462,33 @@ const UserDirectoryPage = () => {
                       )}
                     </td>
                     <td className="text-center">
-                      {u.user?.is_active ? (
-                        <span className="admin-status-badge-table admin-status-badge-active-table">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="admin-status-badge-table admin-status-badge-inactive-table">
-                          Inactive
-                        </span>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(u)}
+                        className={`admin-status-badge-table ${
+                          u.user?.is_active ? 'admin-status-badge-active-table' : 'admin-status-badge-inactive-table'
+                        }`}
+                        title={u.user?.is_active ? "Click to set Inactive" : "Click to set Active"}
+                      >
+                        <Icon name={u.user?.is_active ? "checkCircle" : "clock"} size={13} />
+                        {u.user?.is_active ? 'Active' : 'Inactive'}
+                      </button>
                     </td>
                     <td className="text-center">
-                      {u.is_verified ? (
-                        <span className="admin-status-badge-table admin-status-badge-active-table">
-                          <Icon name="checkCircle" size={14} />
-                          Verified
-                        </span>
-                      ) : (
-                        <span className="admin-status-badge-table admin-status-badge-inactive-table">
-                          Not Verified
-                        </span>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleToggleVerified(u)}
+                        className={`admin-status-badge-table ${
+                          u.is_verified ? 'admin-status-badge-active-table' : 'admin-status-badge-inactive-table'
+                        }`}
+                        title={u.is_verified ? "Click to revoke verification" : "Click to mark as Verified"}
+                      >
+                        <Icon name={u.is_verified ? "checkCircle" : "xCircle"} size={13} />
+                        {u.is_verified ? 'Verified' : 'Unverified'}
+                      </button>
                     </td>
                   </tr>
+
                 ))}
               </tbody>
             </table>
@@ -455,6 +496,7 @@ const UserDirectoryPage = () => {
         </div>
       ) : (
         <div className="admin-card-container admin-empty-state">
+          <Icon name="users" size={48} className="admin-empty-state-icon" />
           <h5 className="admin-empty-state-title">
             No {isStudentsView ? 'students' : 'staff/admin users'} found
           </h5>

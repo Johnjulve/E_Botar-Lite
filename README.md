@@ -1,13 +1,13 @@
 # E-Botar Lite - Streamlined Blockchain Electronic Voting System
 
-**Version 1.0.0** | High-performance, simplified electronic voting platform with an append-only cryptographic blockchain ledger and direct administrative candidate management.
+**Version 1.1.0** | High-performance, simplified electronic voting platform with an append-only cryptographic blockchain ledger and direct administrative candidate management.
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-6.1-green.svg)](https://www.djangoproject.com/)
 [![DRF](https://img.shields.io/badge/DRF-3.16-red.svg)](https://www.django-rest-framework.org/)
 [![React](https://img.shields.io/badge/React-19.2-cyan.svg)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-7.3-purple.svg)](https://vitejs.dev/)
-[![License](https://img.shields.io/badge/License-Proprietary-yellow.svg)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
@@ -232,4 +232,4 @@ E_Botar-Lite/
 ---
 
 ## 📄 License
-Proprietary — Developed for Student Government and Institutional Online Voting.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.

@@ -187,8 +187,11 @@ class VoteReceiptViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsStaffOrSuperUser])
     def audit(self, request):
         """Admin/staff receipt audit list."""
-        election_id = request.query_params.get('election_id')
-        queryset = VoteReceipt.objects.select_related('user', 'user__profile', 'election').all()
+        queryset = VoteReceipt.objects.select_related(
+            'user', 'user__profile', 'election'
+        ).prefetch_related(
+            'ballot', 'ballot__choices', 'ballot__choices__vote_blocks'
+        ).all().order_by('-created_at')
         if election_id:
             queryset = queryset.filter(election_id=election_id)
 

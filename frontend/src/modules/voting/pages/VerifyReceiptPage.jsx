@@ -141,7 +141,9 @@ const VerifyReceiptPage = () => {
                       <dl className="verify-result-details">
                         <div className="verify-result-detail-row">
                           <dt className="verify-result-detail-label">Election</dt>
-                          <dd className="verify-result-detail-value">{result.election}</dd>
+                          <dd className="verify-result-detail-value">
+                            {typeof result.election === 'object' ? (result.election?.title || result.election?.name || 'Election') : result.election}
+                          </dd>
                         </div>
                         {result.voted_at && (
                           <div className="verify-result-detail-row">

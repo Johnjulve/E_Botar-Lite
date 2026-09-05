@@ -58,7 +58,11 @@ const ReceiptAuditPage = () => {
     try {
       setLoading(true);
       const res = await electionService.getAll();
-      setElections(Array.isArray(res.data) ? res.data : []);
+      const list = Array.isArray(res.data) ? res.data : [];
+      setElections(list);
+      if (list.length > 0 && !filters.election_id) {
+        setFilters((prev) => ({ ...prev, election_id: String(list[0].id) }));
+      }
     } catch {
       setElections([]);
     } finally {

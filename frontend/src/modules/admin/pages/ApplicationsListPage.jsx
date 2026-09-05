@@ -1,0 +1,299 @@
+/**
+ * ApplicationsListPage
+ * View and filter all candidate applications
+ */
+
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Container } from '../../../components/layout';
+import { LoadingSpinner, Icon } from '../../../components/common';
+import { candidateService } from '../../../services';
+import { formatDate, getApplicationStatus } from '../../../utils/formatters';
+import { getInitials } from '../../../utils/helpers';
+import '../admin.css';
+
+const ApplicationsListPage = () => {
+  const [applications, setApplications] = useState([]);
+  const [filteredApps, setFilteredApps] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all'); // all, pending, approved, rejected
+  const [searchQuery, setSearchQuery] = useState('');
+  const [pageSize, setPageSize] = useState(20); // 20 | 50 | Infinity (All)
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  useEffect(() => {
+    filterApplications();
+  }, [filter, applications, searchQuery]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, pageSize, searchQuery]);
+
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const response = await candidateService.getAllApplications();
+      setApplications(response.data || []);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterApplications = () => {
+    let list = applications;
+    if (filter !== 'all') {
+      list = list.filter(app => app.status === filter);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(app => {
+        const fullName = `${app.user?.first_name || ''} ${app.user?.last_name || ''}`.toLowerCase();
+        const email = (app.user?.email || '').toLowerCase();
+        const pos = (app.position?.name || '').toLowerCase();
+        const elec = (app.election?.title || '').toLowerCase();
+        const party = (app.party?.name || '').toLowerCase();
+        return fullName.includes(q) || email.includes(q) || pos.includes(q) || elec.includes(q) || party.includes(q);
+      });
+    }
+    setFilteredApps(list);
+  };
+
+  const totalRows = filteredApps.length;
+  const effectivePageSize = Number.isFinite(pageSize) ? pageSize : totalRows || 1;
+  const totalPages = Math.max(1, Math.ceil(totalRows / effectivePageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safeCurrentPage - 1) * effectivePageSize;
+  const endIndexExclusive = Math.min(startIndex + effectivePageSize, totalRows);
+  const paginatedApps = filteredApps.slice(startIndex, endIndexExclusive);
+
+  if (loading) {
+    return <LoadingSpinner fullScreen text="Loading applications..." />;
+  }
+
+  const pendingCount = applications.filter(a => a.status === 'pending').length;
+  const approvedCount = applications.filter(a => a.status === 'approved').length;
+  const rejectedCount = applications.filter(a => a.status === 'rejected').length;
+
+  const filterButtons = [
+    { key: 'all', label: `All Applications (${applications.length})`, icon: 'tasks' },
+    { key: 'pending', label: `Pending (${pendingCount})`, icon: 'clock' },
+    { key: 'approved', label: `Approved (${approvedCount})`, icon: 'checkCircle' },
+    { key: 'rejected', label: `Rejected (${rejectedCount})`, icon: 'xCircle' }
+  ];
+
+  return (
+    <Container>
+      {/* Header */}
+      <div className="admin-header">
+        <div>
+          <h1>
+            Candidate Applications
+          </h1>
+          <p>Review and manage all candidate applications</p>
+        </div>
+        <div className="admin-header-actions">
+          <Link to="/admin" className="admin-btn secondary">
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+
+      {/* Search & Filter Toolbar */}
+      <div className="admin-registry-toolbar-row">
+        <div className="admin-users-search-pill">
+          <Icon name="search" size={16} className="admin-users-search-icon" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search candidate, position, or election..."
+            className="admin-users-search-input"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="admin-users-search-clear"
+              onClick={() => setSearchQuery('')}
+            >
+              ×
+            </button>
+          )}
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="admin-filter-tabs">
+          {filterButtons.map(btn => {
+            const isActive = filter === btn.key;
+            const btnClass = isActive 
+              ? (btn.key === 'pending' ? 'admin-filter-btn-pending' :
+                 btn.key === 'approved' ? 'admin-filter-btn-approved' :
+                 btn.key === 'rejected' ? 'admin-filter-btn-rejected' :
+                 'admin-filter-btn-default')
+              : 'admin-filter-btn-inactive';
+            
+            return (
+              <button
+                key={btn.key}
+                onClick={() => setFilter(btn.key)}
+                className={`admin-filter-btn ${btnClass}`}
+              >
+                <Icon name={btn.icon} size={16} />
+                {btn.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Applications Grid */}
+      {filteredApps.length > 0 ? (
+        <div className="admin-table-container">
+          <div className="admin-card-grid" style={{ padding: 'var(--spacing-md)' }}>
+            {paginatedApps.map(application => {
+            const status = getApplicationStatus(application.status);
+            
+            return (
+              <div key={application.id} className="admin-card">
+                <div className="admin-app-card-header">
+                  <div className="admin-avatar primary" style={{ borderRadius: '50%' }}>
+                    {getInitials(`${application.user?.first_name} ${application.user?.last_name}`)}
+                  </div>
+                  <div className="admin-flex-1 admin-min-width-0">
+                    <h3 className="admin-app-card-name">
+                      {application.user?.first_name} {application.user?.last_name}
+                    </h3>
+                    <p className="admin-app-card-email">
+                      {application.user?.email}
+                    </p>
+                  </div>
+                </div>
+
+                <div className={`admin-status-badge ${
+                  status.variant === 'warning' ? 'admin-status-badge-warning' :
+                  status.variant === 'success' ? 'admin-status-badge-success' :
+                  'admin-status-badge-danger'
+                }`} style={{ marginBottom: '1rem' }}>
+                  {status.label}
+                </div>
+
+                <div className="admin-card-meta">
+                  <div className="admin-card-meta-item">
+                    <Icon name="briefcase" size={16} />
+                    <strong>{application.position?.name}</strong>
+                  </div>
+                  <div className="admin-card-meta-item">
+                    <Icon name="calendar" size={16} />
+                    <span>{application.election?.title}</span>
+                  </div>
+                  {application.party && (
+                    <div className="admin-card-meta-item">
+                      <span className="admin-star-icon">★</span>
+                      <span>{application.party.name}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="admin-app-card-divider">
+                  Submitted: {formatDate(application.submitted_at, 'date')}
+                </div>
+
+                {application.manifesto && (
+                  <p className="admin-app-card-manifesto">
+                    {application.manifesto}
+                  </p>
+                )}
+
+                <Link
+                  to={`/admin/applications/${application.id}`}
+                  className="admin-btn primary admin-app-card-button"
+                >
+                  {application.status === 'pending' ? (
+                    <>
+                      <Icon name="tasks" size={14} />
+                      Review Application
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="arrow" size={14} />
+                      View Details
+                    </>
+                  )}
+                </Link>
+              </div>
+            );
+            })}
+          </div>
+
+          <div className="admin-pagination">
+            <div className="admin-pagination-left">
+              <span className="admin-pagination-title">
+                Page {safeCurrentPage} of {totalPages}
+              </span>
+              <span className="admin-pagination-range">
+                ({totalRows === 0 ? 0 : startIndex + 1}-{endIndexExclusive} of {totalRows})
+              </span>
+            </div>
+
+            <div className="admin-pagination-right">
+              <button
+                type="button"
+                className="admin-btn admin-btn-small"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={safeCurrentPage <= 1}
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                className="admin-btn admin-btn-small"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safeCurrentPage >= totalPages}
+              >
+                Next
+              </button>
+
+              <div className="admin-pagination-view">
+                <label className="admin-pagination-view-label">View</label>
+                <select
+                  className="admin-pagination-view-select"
+                  value={Number.isFinite(pageSize) ? String(pageSize) : 'all'}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'all') setPageSize(Infinity);
+                    else setPageSize(Number(value));
+                  }}
+                >
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="all">All</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="admin-card-container admin-empty-state">
+          <h5 className="admin-empty-state-title">
+            {searchQuery
+              ? `No applications matching "${searchQuery}"`
+              : `No ${filter !== 'all' ? filter : ''} Applications`}
+          </h5>
+          <p className="admin-empty-state-message">
+            {searchQuery
+              ? 'Try adjusting your search keywords or clear the search field.'
+              : `There are no ${filter !== 'all' ? filter : ''} applications at this time.`}
+          </p>
+        </div>
+      )}
+    </Container>
+  );
+};
+
+export default ApplicationsListPage;
+

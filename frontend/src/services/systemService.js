@@ -31,6 +31,21 @@ export const systemService = {
     }
   },
 
+  getBrandingAssets: async () => {
+    try {
+      const response = await api.get('/common/branding/assets/');
+      return response.data?.assets || [];
+    } catch {
+      return [];
+    }
+  },
+
+  activateBrandingAsset: (assetId) =>
+    api.post(`/common/branding/assets/${encodeURIComponent(assetId)}/activate/`),
+
+  deleteBrandingAsset: (assetId) =>
+    api.delete(`/common/branding/assets/${encodeURIComponent(assetId)}/`),
+
   getVersion: () => api.get(API_ENDPOINTS.VERSION),
 
   getSystemLogs: (params = {}) => api.get(API_ENDPOINTS.SYSTEM_LOGS, { params }),

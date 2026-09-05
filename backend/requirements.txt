@@ -20,3 +20,4 @@ tzdata
 urllib3
 gunicorn
 whitenoise
+openpyxl

@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-09-05
+
+Minor feature release adding automated election simulation tooling, cryptographic blockchain receipt audit alignment, centralized unit testing, mobile responsiveness overhaul, global table sorting, and interactive user management.
+
+### Added
+- **Centralized Unit Testing Suite**:
+  - Standardized backend unit tests under `backend/tests/`.
+  - Isolated local testing scripts and benchmarks via `.gitignore` to maintain a clean repository.
+- **Interactive User Management & Verified Column**:
+  - Added the **Verified** sortable column to [`UserManagementPage.jsx`](frontend/src/modules/admin/pages/UserManagementPage.jsx).
+  - Converted static status and verification badges in `UserManagementPage.jsx` and `UserDirectoryPage.jsx` into interactive buttons allowing instant click-to-toggle of active status and student verification.
+- **Global Table Sorting Rollout**: Added [`SortableHeader`](frontend/src/components/common/SortableHeader.jsx) and [`useTableSort`](frontend/src/hooks/useTableSort.js) across all administration data tables.
+- **Brand Identity & Favicon Elevation**:
+  - Synchronized high-resolution, auto-trimmed default **E-Botar Banner Logo** (`logo.png`) across frontend assets and public roots.
+  - Deployed dedicated circular **"E" + Checkmark** browser tab favicon (`favicon.png` & `favicon.ico`).
+- **High-Turnout Election Simulator (`simulate_election`)**: Added Django management command `python backend/manage.py simulate_election` to generate realistic high-turnout voter cohorts (across colleges and courses) with automated ballot casting, blockchain block appending, and receipt issuance.
+- **Enhanced Audit Trail Metadata (`VoteReceiptAuditSerializer`)**: Expanded receipt audit serializer with `block_hash`, `previous_hash`, `user_full_name`, `user_username`, `full_receipt_code`, and `vote_status` fields for comprehensive audit visibility.
+- **Audit Service Alias (`votingService.getReceiptAudit`)**: Added client-side method alias ensuring reliable integration between receipt audit views and the backend audit endpoint.
+
+### Fixed & Improved
+- **System-Wide Mobile Responsiveness Overhaul**:
+  - Replaced legacy vertical tab stacking with touch-friendly horizontal scrolling tabs (`.admin-filter-tabs`).
+  - Implemented responsive mobile toolbar stacking (`.admin-registry-toolbar-row`): full-width search on top, horizontal scrollable filter pills below.
+  - Modernized mobile Admin Dashboard Quick Actions into a balanced 2-column grid (`.admin-quick-actions-grid`).
+  - Adjusted mobile action buttons into flexible rows instead of full-width blocks.
+- **Voting Status Design System Elevation (`VotingStatusPage.jsx`)**:
+  - Brought `/admin/voting-status` into full parity with `/admin/users` (User Management).
+  - Integrated `.admin-users-toolbar-card` with magnifying search pill, 300ms debouncing, and one-click clear button.
+  - Integrated collapsible Advanced Filters button with dynamic active filter badge counter (`(1)`).
+  - Replaced raw text metric summaries with interactive 3-card stat grid (`.admin-users-stats-grid.three-cols`) with dynamic click-to-filter toggles.
+- **Global Theme & Token Harmonization**:
+  - Aligned primary action buttons, active tab indicators, and brand accents to SSCT Deep Forest Green (`#0b6e3b`).
+  - Enforced strict preservation of Red (`#ef4444`) exclusively for destructive/delete/archive actions.
+  - Harmonized toolbar search pills across Elections, Applications, and Voting Status.
+  - Centralized responsive layout utility classes (`.admin-metrics-stats-grid`, `.admin-toolbar-card`, `.admin-search-pill`) in `admin.css`.
+- **Blockchain Audit Hash Linkage Alignment (`VoteReceiptAuditSerializer`)**: Resolved multi-position election audit table alignment by implementing `_ballot_blocks` in `VoteReceiptAuditSerializer` and adding eager prefetching in `audit()` view. Each row now accurately reflects the ballot's entry `previous_hash` and terminal `current_hash`, ensuring consecutive row-to-row cryptographic continuity without N+1 query overhead.
+- **Receipt Verification Display Robustness**: Fixed issue in [`VerifyReceiptPage.jsx`](frontend/src/modules/voting/pages/VerifyReceiptPage.jsx) to safely handle structured election metadata objects without rendering errors.
+- **Receipt Audit Initial State**: Enhanced [`ReceiptAuditPage.jsx`](frontend/src/modules/admin/pages/ReceiptAuditPage.jsx) to automatically default to the primary election upon initial load.
+- **Git Ignore Hygiene**: Excluded thesis presentation assets (`THESIS_ASSETS.md`, `THESIS_*.md`) from version tracking.
+
+---
+
 ## [1.0.0] - 2026-08-25
 
 Initial release of **E-Botar Lite**, a streamlined, high-performance edition of the university electronic voting system featuring direct candidate management and an append-only cryptographic blockchain ledger.

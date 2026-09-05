@@ -15,6 +15,7 @@ export const votingService = {
   getVotingStatusList: (params = {}) => api.get(API_ENDPOINTS.VOTING_STATUS, { params }),
   getVotingStatus: (params = {}) => api.get(API_ENDPOINTS.VOTING_STATUS, { params }),
   getAuditReceipts: (params = {}) => api.get(`${API_ENDPOINTS.RECEIPTS}audit/`, { params }),
+  getReceiptAudit: (params = {}) => api.get(`${API_ENDPOINTS.RECEIPTS}audit/`, { params }),
 };
 
 export default votingService;

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'apps.elections',
     'apps.candidates',
     'apps.voting',
+    'tests',
 ]
 
 MIDDLEWARE = [
@@ -161,3 +162,7 @@ BACKEND_BASE_URL = os.getenv('BACKEND_BASE_URL', 'http://127.0.0.1:8000')
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = list(default_headers)
+
+# Test Runner
+TEST_RUNNER = 'tests.runner.VerboseTestRunner'
+

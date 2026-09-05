@@ -109,7 +109,13 @@ scratch/
 test_e2e_core.py
 test_*.py
 tasks/
-implementation_plan.md
+THESIS_ASSETS.md
+THESIS_*.md
+
+# ------------------------------------------------------------------------------
+# 8. Local Planning & Analysis Docs (not for version control)
+# ------------------------------------------------------------------------------
+Plans/
 htmlcov/
 .tox/
 .nox/
@@ -144,3 +150,34 @@ Desktop.ini
 .cursorignore
 .cursorindexingignore
 .ipynb_checkpoints
+
+# ------------------------------------------------------------------------------
+# 9. Private Development Plans & Notes
+# ------------------------------------------------------------------------------
+docs/
+scripts/
+Plans/
+Plan/
+Plans-Docs/
+Plans*/
+Plan*/
+
+
+# Local launcher scripts
+start-dev.ps1
+start-dev.bat
+start*.ps1
+start*.bat
+scripts/start*.ps1
+scripts/start*.bat
+
+# Agent customizations and local agent skills/rules
+.agents/
+.agent/
+
+# Independent Multi-Purpose Testing CLI & Artifacts
+Testing/
+run_tests.py
+test.cmd
+.pytest_cache/
+*performance_report.json
