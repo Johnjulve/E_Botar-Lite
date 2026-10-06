@@ -43,7 +43,18 @@ import {
   SystemLogsPage,
 } from '../modules/admin/pages';
 
+import { useToast } from '../contexts/ToastContext';
+import { useEffect } from 'react';
+
 const AppRoutes = () => {
+  const { addToast } = useToast();
+
+  useEffect(() => {
+    window.alert = (msg) => {
+      addToast(msg, 'info');
+    };
+  }, [addToast]);
+
   return (
     <Routes>
       {/* Public Pages */}
