@@ -21,3 +21,6 @@ urllib3
 gunicorn
 whitenoise
 openpyxl
+
+django-allauth
+google-auth
