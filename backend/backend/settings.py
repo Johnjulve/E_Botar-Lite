@@ -20,6 +20,9 @@ DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-ebotar-lite-core-blockchain-voting-system-key-2026')
 
+if IS_PRODUCTION and SECRET_KEY == 'django-insecure-ebotar-lite-core-blockchain-voting-system-key-2026':
+    raise ValueError("Insecure default SECRET_KEY detected in production. You must set a secure SECRET_KEY environment variable.")
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 # Application definition
