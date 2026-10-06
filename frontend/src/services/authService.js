@@ -41,6 +41,13 @@ export const authService = {
     return response.data;
   },
 
+  changePassword: async (newPassword) => {
+    const response = await api.post(`${API_ENDPOINTS.PROFILES}change_password/`, {
+      new_password: newPassword,
+    });
+    return response.data;
+  },
+
   getUserCount: () => api.get(API_ENDPOINTS.USER_COUNTS),
 
   getStudentCount: () => api.get(API_ENDPOINTS.USER_COUNTS),
@@ -72,6 +79,25 @@ export const authService = {
   updateUserRole: (userId, role) => api.post(`${API_ENDPOINTS.USERS}${userId}/set_role/`, { role }),
 
   deleteUser: (userId) => api.delete(`${API_ENDPOINTS.USERS}${userId}/`),
+
+  previewStudentRoster: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post(API_ENDPOINTS.ROSTER_PREVIEW, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  importStudentRoster: async (file, deactivateUnlisted = false) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('deactivate_unlisted', deactivateUnlisted.toString());
+    const response = await api.post(API_ENDPOINTS.ROSTER_IMPORT, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
 };
 
 export default authService;

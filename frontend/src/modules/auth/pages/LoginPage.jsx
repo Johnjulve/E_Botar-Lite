@@ -167,12 +167,7 @@ const LoginPage = () => {
                 </button>
               </Form>
 
-              <div className="auth-link-text mt-4">
-                Don&apos;t have an account?{' '}
-                <Link to={ROUTES.REGISTER} className="auth-link">
-                  Create one here
-                </Link>
-              </div>
+
             </div>
 
             <div className="auth-footer text-center mt-4">

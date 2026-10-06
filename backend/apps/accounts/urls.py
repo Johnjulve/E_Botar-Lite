@@ -12,6 +12,8 @@ from .views import (
     ProgramViewSet,
     UserManagementViewSet,
     user_count_view,
+    student_roster_preview,
+    student_roster_import,
 )
 
 app_name = 'accounts'
@@ -32,6 +34,10 @@ urlpatterns = [
     # Public program helpers
     path('departments/', DepartmentListView.as_view(), name='departments-list'),
     path('courses/', CourseListView.as_view(), name='courses-list'),
+
+    # Roster Sync Endpoints
+    path('students/roster-preview/', student_roster_preview, name='student-roster-preview'),
+    path('students/roster-execute/', student_roster_import, name='student-roster-import'),
 
     # ViewSet routes
     path('', include(router.urls)),

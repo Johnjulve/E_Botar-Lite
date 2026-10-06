@@ -92,10 +92,11 @@ class UserProfile(models.Model):
         limit_choices_to={'program_type': Program.ProgramType.COURSE},
         to_field='code'
     )
-    year_level = models.CharField(max_length=20, blank=True)
+    year_level = models.CharField(max_length=20, blank=True, db_index=True)
     section = models.CharField(max_length=50, blank=True)
     avatar = models.ImageField(upload_to=avatar_upload_path, blank=True, null=True)
-    is_verified = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False, db_index=True)
+    must_change_password = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -125,3 +126,6 @@ class UserProfile(models.Model):
         verbose_name = 'User Profile'
         verbose_name_plural = 'User Profiles'
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['department', 'year_level']),
+        ]

@@ -4,12 +4,13 @@
  */
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from './common/LoadingSpinner';
 
 const ProtectedRoute = ({ children, requireAdmin = false, requireStaff = false }) => {
-  const { isAuthenticated, isAdmin, isStaffOrAdmin, loading } = useAuth();
+  const { user, isAuthenticated, isAdmin, isStaffOrAdmin, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return <LoadingSpinner fullScreen text="Verifying authentication..." />;
@@ -17,6 +18,11 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireStaff = false }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Intercept for mandatory password reset
+  if (user?.must_change_password && location.pathname !== '/change-password') {
+    return <Navigate to="/change-password" replace />;
   }
 
   // Admin-only routes (superuser only)

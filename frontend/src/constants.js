@@ -2,9 +2,9 @@
  * Application Constants for E-Botar Lite
  */
 
-export const APP_VERSION = '1.1.0';
+export const APP_VERSION = '2.0.0';
 
-export const API_BASE_URL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL || '/api');
+export const API_BASE_URL = import.meta.env.DEV ? '/api/v1' : (import.meta.env.VITE_API_BASE_URL || '/api/v1');
 
 export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
@@ -63,6 +63,8 @@ export const API_ENDPOINTS = {
   USERS: '/auth/users/',
   PROGRAMS: '/auth/programs/',
   USER_COUNTS: '/auth/user-counts/',
+  ROSTER_PREVIEW: '/auth/students/roster-preview/',
+  ROSTER_IMPORT: '/auth/students/roster-execute/',
 
   // Elections
   ELECTIONS: '/elections/elections/',
