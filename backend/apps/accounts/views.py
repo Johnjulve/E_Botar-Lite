@@ -1,11 +1,9 @@
 """Accounts views: authentication, profiles, user management, and programs."""
 import csv
-import io
 import logging
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponse
 from rest_framework import generics, viewsets, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -168,17 +166,24 @@ class ProgramViewSet(viewsets.ModelViewSet):
             if program_type_filter:
                 queryset = queryset.filter(program_type=program_type_filter)
 
-            response = HttpResponse(content_type='text/csv; charset=utf-8')
+            from django.http import StreamingHttpResponse
+
+            class Echo:
+                def write(self, value):
+                    return value
+
+            def csv_generator():
+                pseudo_buffer = Echo()
+                writer = csv.writer(pseudo_buffer)
+                yield pseudo_buffer.write('\ufeff')
+                yield writer.writerow(['name', 'code', 'program_type', 'department_code'])
+                for program in queryset.iterator(chunk_size=1000):
+                    dept_code = program.department.code if program.department else ''
+                    yield writer.writerow([program.name, program.code, program.program_type, dept_code])
+
+            response = StreamingHttpResponse(csv_generator(), content_type='text/csv; charset=utf-8')
             filename = f"programs_export{('_' + program_type_filter) if program_type_filter else ''}.csv"
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            response.write('\ufeff')
-
-            writer = csv.writer(response)
-            writer.writerow(['name', 'code', 'program_type', 'department_code'])
-
-            for program in queryset:
-                dept_code = program.department.code if program.department else ''
-                writer.writerow([program.name, program.code, program.program_type, dept_code])
 
             return response
         except Exception as exc:
