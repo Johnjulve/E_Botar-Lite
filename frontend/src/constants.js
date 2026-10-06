@@ -4,7 +4,7 @@
 
 export const APP_VERSION = '2.0.0';
 
-export const API_BASE_URL = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE_URL || '/api');
+export const API_BASE_URL = import.meta.env.DEV ? '/api/v1' : (import.meta.env.VITE_API_BASE_URL || '/api/v1');
 
 export const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
