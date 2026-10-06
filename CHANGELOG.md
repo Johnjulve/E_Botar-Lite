@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2026-10-06
+
+Major feature release introducing Administrative Student Roster Synchronization. This establishes a "Closed Registration" architectural posture where user accounts are strictly imported and managed by administrators via Excel/CSV, eliminating open public registration.
+
+### Added
+- **Centralized Administrative Roster Parser**: Added `StudentRosterParser` to support robust `.xlsx` and `.csv` parsing, format normalization (student IDs, year levels, course codes), and row-level validation.
+- **Roster Diff & Execution Engine**: Implemented stateless pre-import execution pipeline `classify_roster_diff` to calculate New, Updated, Deactivated, and Erroneous records before committing to the database.
+- **Google OAuth Integration**: Configured Google Social Login explicitly for University Google Workspace accounts, mapping verified emails directly to imported roster accounts, and auto-bypassing password requirements.
+- **Frontend Sync UI & Interactive Preview**: Added bulk file dropzone and an interactive pre-import confirmation modal in the User Management dashboard.
+- **Mandatory First-Login Password Reset**: Created `ChangePasswordPage.jsx` and `ProtectedRoute` interceptors enforcing imported students to update default passwords before accessing voting mechanisms.
+
+### Changed
+- **Locked Down Public Registration**: Removed the frontend registration view and explicitly disabled the `UserRegistrationView` endpoint to enforce the new closed-roster architecture.
+- **User Profile Model Changes**: Added `must_change_password` flag and compound database indexes for optimized bulk querying.
+
+---
+
 ## [1.1.0] - 2026-09-05
 
 Minor feature release adding automated election simulation tooling, cryptographic blockchain receipt audit alignment, centralized unit testing, mobile responsiveness overhaul, global table sorting, and interactive user management.

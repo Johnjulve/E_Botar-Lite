@@ -170,10 +170,10 @@ E_Botar-Lite/
 - [x] **First-Login Password Reset Enforcement**: Check `must_change_password` flag on login response; render mandatory password update modal before granting full system access.
 
 #### Phase 4.5: Automated Verification & Documentation Synchronization
-- [ ] **Unit & Parser Tests**: Add tests covering valid and malformed Excel/CSV rosters, duplicate emails, and invalid student IDs.
-- [ ] **Full Test Suite Execution**: Run `python backend/manage.py test` and verify zero failures.
-- [ ] **Frontend Build Verification**: Run `npm run build` and ensure zero errors.
-- [ ] **Documentation Sync**: Synchronize `CHANGELOG.md`, `README.md`, and project documentation.
+- [x] **Unit & Parser Tests**: Add tests covering valid and malformed Excel/CSV rosters, duplicate emails, and invalid student IDs.
+- [x] **Full Test Suite Execution**: Run `python backend/manage.py test` and verify zero failures.
+- [x] **Frontend Build Verification**: Run `npm run build` and ensure zero errors.
+- [x] **Documentation Sync**: Synchronize `CHANGELOG.md`, `README.md`, and project documentation.
 
 ---
 
