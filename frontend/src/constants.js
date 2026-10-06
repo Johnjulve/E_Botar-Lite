@@ -63,6 +63,8 @@ export const API_ENDPOINTS = {
   USERS: '/auth/users/',
   PROGRAMS: '/auth/programs/',
   USER_COUNTS: '/auth/user-counts/',
+  ROSTER_PREVIEW: '/auth/students/roster-preview/',
+  ROSTER_IMPORT: '/auth/students/roster-execute/',
 
   // Elections
   ELECTIONS: '/elections/elections/',
