@@ -16,6 +16,7 @@ from .profile_list_filters import apply_profile_list_filters
 from apps.common.http.permissions import IsStaffOrSuperUser, IsSuperUser
 from apps.common.http.pagination import StandardResultsSetPagination
 from .csv_services import process_program_csv
+from .services.roster_sync import StudentRosterParser, classify_roster_diff, execute_roster_sync
 from .serializers import (
     CustomTokenObtainPairSerializer,
     UserRegistrationSerializer,
@@ -240,3 +241,108 @@ def user_count_view(request):
         'total_staff': total_staff,
         'total_admins': total_admins,
     })
+
+# --- Student Roster Synchronization --------------------------------------------
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsStaffOrSuperUser])
+def student_roster_preview(request):
+    """
+    Dry-run endpoint for student roster synchronization.
+    Parses uploaded .xlsx or .csv, validates formatting, and calculates diffs
+    without mutating the database.
+    """
+    uploaded_file = request.FILES.get('file')
+    if not uploaded_file:
+        return Response(
+            {'error': 'A valid spreadsheet file (.xlsx or .csv) is required.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    parser = StudentRosterParser()
+    valid_rows, error_rows = parser.parse_file(uploaded_file, uploaded_file.name)
+
+    if not valid_rows and error_rows and error_rows[0].get('field') in ('format', 'dependency', 'file', 'header'):
+        return Response(
+            {
+                'error': error_rows[0]['error'],
+                'errors': error_rows,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    diff = classify_roster_diff(valid_rows)
+
+    return Response(
+        {
+            'filename': uploaded_file.name,
+            'stats': {
+                'total_rows': len(valid_rows) + len(error_rows),
+                'valid_count': len(valid_rows),
+                'error_count': len(error_rows),
+                'to_create_count': diff['stats']['to_create_count'],
+                'to_update_count': diff['stats']['to_update_count'],
+                'to_deactivate_count': diff['stats']['to_deactivate_count'],
+            },
+            'errors': error_rows,
+            'preview': {
+                'to_create': diff['to_create'][:100],
+                'to_update': diff['to_update'][:100],
+                'to_deactivate': diff['to_deactivate'][:100],
+            },
+        },
+        status=status.HTTP_200_OK,
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsStaffOrSuperUser])
+def student_roster_import(request):
+    """
+    Atomic execution endpoint for student roster synchronization.
+    Parses uploaded file, executes creates/updates within a single database transaction,
+    flags must_change_password=True for new accounts, logs ActivityLog, and clears cache.
+    """
+    uploaded_file = request.FILES.get('file')
+    if not uploaded_file:
+        return Response(
+            {'error': 'A valid spreadsheet file (.xlsx or .csv) is required.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    deactivate_unlisted_raw = request.data.get('deactivate_unlisted', 'false')
+    deactivate_unlisted = str(deactivate_unlisted_raw).lower() in ('true', '1', 'yes')
+
+    parser = StudentRosterParser()
+    valid_rows, error_rows = parser.parse_file(uploaded_file, uploaded_file.name)
+
+    if not valid_rows:
+        return Response(
+            {
+                'error': 'No valid student records were found in the uploaded file.',
+                'errors': error_rows,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    diff = classify_roster_diff(valid_rows)
+
+    result = execute_roster_sync(
+        diff=diff,
+        deactivate_unlisted=deactivate_unlisted,
+        actor_user=request.user,
+        ip_address=get_client_ip(request),
+    )
+
+    return Response(
+        {
+            'message': 'Student roster synchronized successfully.',
+            'created_count': result['created_count'],
+            'updated_count': result['updated_count'],
+            'deactivated_count': result['deactivated_count'],
+            'total_synced': result['total_synced'],
+            'errors_count': len(error_rows),
+            'errors': error_rows,
+        },
+        status=status.HTTP_200_OK,
+    )
