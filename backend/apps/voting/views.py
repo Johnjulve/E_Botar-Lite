@@ -1,5 +1,5 @@
 import logging
-from django.db import models, transaction
+from django.db import models
 from django.db.models import Count, OuterRef, Exists
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
@@ -10,9 +10,9 @@ from apps.accounts.models import UserProfile
 from apps.accounts.serializers import UserVotingStatusListSerializer
 from apps.common.http.pagination import StandardResultsSetPagination
 from apps.candidates.models import Candidate
-from apps.common.core.algorithms import AggregationAlgorithm, SortingAlgorithm
+from apps.common.core.algorithms import SortingAlgorithm
 from apps.common.models import ActivityLog
-from apps.common.http.permissions import IsStaffOrSuperUser, IsSuperUser
+from apps.common.http.permissions import IsStaffOrSuperUser
 from apps.common.core.utils import get_client_ip
 from apps.elections.models import SchoolElection, SchoolPosition
 
@@ -25,7 +25,7 @@ from .serializers import (
     VoteReceiptVerifySerializer,
 )
 from .services import VotingDataService
-from .vote_ledger import append_vote_blocks_for_ballot, verify_election_vote_chain
+from .vote_ledger import verify_election_vote_chain
 
 logger = logging.getLogger(__name__)
 
@@ -59,76 +59,25 @@ class BallotViewSet(viewsets.ReadOnlyModelViewSet):
 
         election = serializer.validated_data['election']
         votes = serializer.validated_data['votes']
-        user = request.user
-        client_ip = get_client_ip(request)
 
         try:
-            with transaction.atomic():
-                receipt = VoteReceipt.objects.create(
-                    user=user,
-                    election=election,
-                    ip_address=client_ip,
-                )
+            from .services import BallotSubmissionService
+            ballot, receipt = BallotSubmissionService.submit_ballot(
+                user=request.user,
+                election=election,
+                votes_data=votes,
+                request=request
+            )
 
-                ballot = Ballot.objects.create(
-                    user=user,
-                    election=election,
-                    receipt=receipt,
-                    ip_address=client_ip,
-                    user_agent=request.META.get('HTTP_USER_AGENT', '')[:255],
-                )
+            ballot_serializer = BallotSerializer(ballot)
+            return Response({
+                'message': 'Ballot submitted successfully',
+                'ballot': ballot_serializer.data,
+                'receipt_code': receipt.receipt_code
+            }, status=status.HTTP_201_CREATED)
 
-                choices_saved = []
-                for vote_data in votes:
-                    position = SchoolPosition.objects.get(id=vote_data['position_id'])
-                    candidate = Candidate.objects.get(
-                        id=vote_data['candidate_id'],
-                        election=election,
-                        position=position,
-                        is_active=True
-                    )
-
-                    choice = VoteChoice.objects.create(
-                        ballot=ballot,
-                        position=position,
-                        candidate=candidate,
-                    )
-                    choice.anonymize()
-                    choices_saved.append(choice)
-
-                # Append blocks into blockchain ledger
-                append_vote_blocks_for_ballot(
-                    election_id=election.id,
-                    ballot_identifier=str(ballot.pk),
-                    receipt_secret=receipt.receipt_hash,
-                    user_id=user.id,
-                    choices=choices_saved,
-                )
-
-                VotingDataService.invalidate_voting_cache(election.id)
-
-                student_id = getattr(getattr(user, 'profile', None), 'student_id', None)
-                ActivityLog.objects.create(
-                    user=user,
-                    action='vote',
-                    resource_type='Election',
-                    resource_id=election.id,
-                    description=f"Student {student_id or user.username} cast vote in election '{election.title}'",
-                    ip_address=client_ip,
-                    metadata={
-                        'election_id': election.id,
-                        'receipt_code': receipt.get_masked_receipt(),
-                        'positions_voted': len(votes)
-                    }
-                )
-
-                ballot_serializer = BallotSerializer(ballot)
-                return Response({
-                    'message': 'Ballot submitted successfully',
-                    'ballot': ballot_serializer.data,
-                    'receipt_code': receipt.receipt_code
-                }, status=status.HTTP_201_CREATED)
-
+        except ValueError as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except (SchoolPosition.DoesNotExist, Candidate.DoesNotExist) as e:
             return Response({'detail': f'Invalid position or candidate: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -240,20 +189,17 @@ class ResultsViewSet(viewsets.ViewSet):
             if not pos:
                 continue
 
-            position_votes = list(
+            position_votes = (
                 VoteChoice.objects.filter(
                     ballot__election=election,
                     position=pos,
                     ballot__user__is_active=True
-                ).values('candidate_id')
+                )
+                .values('candidate_id')
+                .annotate(vote_count=Count('id'))
             )
 
-            vote_counts = AggregationAlgorithm.aggregate(
-                position_votes,
-                key_func=lambda v: v.get('candidate_id'),
-                operation='count'
-            )
-            vote_map = {cid: count for cid, count in vote_counts.items() if cid is not None}
+            vote_map = {item['candidate_id']: item['vote_count'] for item in position_votes if item['candidate_id'] is not None}
             pos_total_votes = sum(vote_map.values())
 
             candidates = Candidate.objects.filter(election=election, position=pos).select_related('user', 'party')

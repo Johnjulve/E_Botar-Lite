@@ -1,9 +1,11 @@
 """Common views: health check, system logs, version, branding, academic year."""
 import logging
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from django.db import connection
+from django.core.cache import cache
 from rest_framework.views import APIView
 
 from .models import SecurityEvent, ActivityLog, SystemSettings
@@ -15,14 +17,35 @@ logger = logging.getLogger(__name__)
 
 
 @api_view(['GET'])
+@authentication_classes([])
 @permission_classes([AllowAny])
+@throttle_classes([])
 def health_check(request):
-    """Health check endpoint."""
+    """Health check endpoint with active probes and unthrottled access."""
+    db_ok = False
+    try:
+        connection.ensure_connection()
+        db_ok = True
+    except Exception as e:
+        logger.error(f"Health check DB probe failed: {e}")
+
+    cache_ok = False
+    try:
+        cache.set('health_probe', 'ok', timeout=5)
+        if cache.get('health_probe') == 'ok':
+            cache_ok = True
+    except Exception as e:
+        logger.error(f"Health check Cache probe failed: {e}")
+
+    status_code = status.HTTP_200_OK if db_ok and cache_ok else status.HTTP_503_SERVICE_UNAVAILABLE
+
     return Response({
-        'status': 'healthy',
+        'status': 'healthy' if (db_ok and cache_ok) else 'unhealthy',
         'service': 'ebotar-lite-api',
+        'database': 'connected' if db_ok else 'disconnected',
+        'cache': 'connected' if cache_ok else 'disconnected',
         'message': 'E-Botar Lite API is running',
-    })
+    }, status=status_code)
 
 
 class VersionView(APIView):
