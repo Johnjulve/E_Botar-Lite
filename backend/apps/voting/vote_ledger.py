@@ -8,6 +8,7 @@ without storing raw voter identifiers in vote_data payloads.
 
 from __future__ import annotations
 
+import hmac
 import json
 import logging
 from decimal import Decimal
@@ -169,7 +170,7 @@ def verify_election_vote_chain(election_id: int) -> Tuple[bool, List[str]]:
     for block in rows:
         if block.block_index != expected_index:
             errors.append(f'Block index discontinuity: expected {expected_index}, got {block.block_index}')
-        if block.previous_hash != expected_previous:
+        if not hmac.compare_digest(block.previous_hash, expected_previous):
             errors.append(f'Chain link broken at index {block.block_index}: previous_hash does not match prior block digest')
         try:
             normalized_vote_data = normalize_vote_payload_for_digest(block.vote_data)
@@ -181,7 +182,7 @@ def verify_election_vote_chain(election_id: int) -> Tuple[bool, List[str]]:
 
         canonical = canonical_vote_json(normalized_vote_data)
         recomputed_digest = CryptographicAlgorithm.sha256_hash(f'{block.block_index}{canonical}{block.previous_hash}')
-        if recomputed_digest != block.current_hash:
+        if not hmac.compare_digest(recomputed_digest, block.current_hash):
             errors.append(f'Hash mismatch at index {block.block_index}: recomputed ledger digest differs from stored hash')
 
         expected_previous = block.current_hash

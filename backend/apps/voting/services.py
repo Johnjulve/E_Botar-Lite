@@ -5,11 +5,15 @@ Provides calculations, statistics, and caching for voting operations.
 
 from django.core.cache import cache
 from django.db.models import Count
-from apps.common.core.algorithms import CryptographicAlgorithm
+
 from .models import Ballot, VoteChoice, VoteReceipt
 from apps.candidates.models import Candidate
 from apps.elections.models import SchoolElection, SchoolPosition
 from apps.accounts.models import UserProfile
+from django.db import transaction
+from apps.common.core.utils import get_client_ip
+from .vote_ledger import append_vote_blocks_for_ballot
+from apps.common.models import ActivityLog
 
 
 class VotingDataService:
@@ -59,3 +63,79 @@ class VotingDataService:
             'turnout_percentage': turnout,
             'votes_by_position': votes_by_position
         }
+
+
+class BallotSubmissionService:
+    """Service to handle atomic ballot submissions with concurrency locks."""
+
+    @staticmethod
+    def submit_ballot(user, election, votes_data, request):
+        client_ip = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')[:255]
+
+        with transaction.atomic():
+            # Lock the user profile to strictly prevent double-voting anomalies under load
+            UserProfile.objects.select_for_update().get(user=user)
+
+            if Ballot.objects.filter(user=user, election=election).exists():
+                raise ValueError("You have already submitted a ballot for this election.")
+
+            receipt = VoteReceipt.objects.create(
+                user=user,
+                election=election,
+                ip_address=client_ip,
+            )
+
+            ballot = Ballot.objects.create(
+                user=user,
+                election=election,
+                receipt=receipt,
+                ip_address=client_ip,
+                user_agent=user_agent,
+            )
+
+            choices_saved = []
+            for vote_data in votes_data:
+                position = SchoolPosition.objects.get(id=vote_data['position_id'])
+                candidate = Candidate.objects.get(
+                    id=vote_data['candidate_id'],
+                    election=election,
+                    position=position,
+                    is_active=True
+                )
+
+                choice = VoteChoice.objects.create(
+                    ballot=ballot,
+                    position=position,
+                    candidate=candidate,
+                )
+                choice.anonymize()
+                choices_saved.append(choice)
+
+            # Append blocks into blockchain ledger
+            append_vote_blocks_for_ballot(
+                election_id=election.id,
+                ballot_identifier=str(ballot.pk),
+                receipt_secret=receipt.receipt_hash,
+                user_id=user.id,
+                choices=choices_saved,
+            )
+
+            VotingDataService.invalidate_voting_cache(election.id)
+
+            student_id = getattr(getattr(user, 'profile', None), 'student_id', None)
+            ActivityLog.objects.create(
+                user=user,
+                action='vote',
+                resource_type='Election',
+                resource_id=election.id,
+                description=f"Student {student_id or user.username} cast vote in election '{election.title}'",
+                ip_address=client_ip,
+                metadata={
+                    'election_id': election.id,
+                    'receipt_code': receipt.get_masked_receipt(),
+                    'positions_voted': len(votes_data)
+                }
+            )
+
+            return ballot, receipt
