@@ -3,6 +3,7 @@ import csv
 import io
 import logging
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
 from rest_framework import generics, viewsets, status
@@ -44,6 +45,10 @@ class UserRegistrationView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def create(self, request, *args, **kwargs):
+        if not getattr(settings, 'ALLOW_PUBLIC_REGISTRATION', False):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Public registration is currently disabled. Please contact your administrator.")
+            
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
@@ -95,6 +100,23 @@ class UserProfileViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def change_password(self, request):
+        user = request.user
+        new_password = request.data.get('new_password')
+        if not new_password or len(new_password) < 8:
+            return Response({'error': 'Password must be at least 8 characters long.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.set_password(new_password)
+        user.save()
+        
+        profile = user.profile
+        if getattr(profile, 'must_change_password', False):
+            profile.must_change_password = False
+            profile.save(update_fields=['must_change_password'])
+            
+        return Response({'message': 'Password successfully changed.'})
 
 
 class DepartmentListView(generics.ListAPIView):

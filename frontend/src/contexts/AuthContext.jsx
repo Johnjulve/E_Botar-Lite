@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
         section: userData.profile?.section,
         avatar_url: userData.profile?.avatar_url,
         is_profile_complete: userData.profile?.is_profile_complete,
+        must_change_password: userData.profile?.must_change_password,
       };
       setUser(updatedUser);
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));

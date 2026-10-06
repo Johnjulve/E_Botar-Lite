@@ -41,6 +41,13 @@ export const authService = {
     return response.data;
   },
 
+  changePassword: async (newPassword) => {
+    const response = await api.post(`${API_ENDPOINTS.PROFILES}change_password/`, {
+      new_password: newPassword,
+    });
+    return response.data;
+  },
+
   getUserCount: () => api.get(API_ENDPOINTS.USER_COUNTS),
 
   getStudentCount: () => api.get(API_ENDPOINTS.USER_COUNTS),

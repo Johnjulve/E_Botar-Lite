@@ -5,6 +5,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 // Auth Pages
 import LoginPage from '../modules/auth/pages/LoginPage';
 import RegisterPage from '../modules/auth/pages/RegisterPage';
+import ChangePasswordPage from '../modules/auth/pages/ChangePasswordPage';
 
 // Election Pages
 import ElectionListPage from '../modules/elections/pages/ElectionListPage';
@@ -55,6 +56,15 @@ const AppRoutes = () => {
       <Route path="/candidates/:id" element={<CandidateProfilePage />} />
       <Route path="/results/:id" element={<ResultsDetailsPage />} />
       <Route path="/verify-receipt" element={<VerifyReceiptPage />} />
+
+      <Route
+        path="/change-password"
+        element={
+          <ProtectedRoute>
+            <ChangePasswordPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Protected Student / Voter Pages */}
       <Route
