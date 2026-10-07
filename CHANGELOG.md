@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.0.0] - 2026-10-06
+
+Major architectural and infrastructure hardening release introducing unified API versioning, decoupled voting submission services, streaming export pipelines, sliding window pagination, database-level query aggregations, fail-fast configuration safety, and resilient frontend error boundaries and toast notifications.
+
+### Added
+- **API Versioning & Client Gateway Adapter (`/api/v1/`)**: Standardized all backend routing with `/api/v1/` prefixing and configured Axios interceptors with automated token renewal and standardized error envelope unboxing.
+- **Lazy Streaming Pipelines (`EchoBuffer` & Generator Exports)**: Replaced full in-memory file buffers with generator-driven streaming CSV export pipelines, guaranteeing flat $O(1)$ memory footprints regardless of dataset size.
+- **Sliding Window Pagination (`SlidingWindowPagination`)**: Implemented dynamic metadata pagination (`max_window_size=200`, `sliding_step=50`) preventing payload bloat on large tabular registries.
+- **Global React Error Boundary (`ErrorBoundary.jsx`)**: Integrated application-level catch boundary with a recovery view and crash telemetry reporting, isolating rendering failures without white-screening.
+- **Unified Notification System (`ToastProvider` & `useToast`)**: Replaced fragmented `alert()` dialogs with auto-dismissing, accessible floating toast alerts for actions, warnings, and error diagnostics.
+
+### Changed & Performance
+- **Decoupled Voting Submission Pipeline**: Refactored `BallotViewSet.submit()` into an isolated, atomic service with pre-validated candidate lookups, batch verification, and clean boundary separation.
+- **Database-Level SQL Aggregation**: Optimized election results calculation by replacing Python-level iteration loops with direct Django ORM aggregation queries, slashing DB hits.
+- **Fail-Fast Configuration Enforcement**: Implemented strict validation during Django startup to halt immediately if `SECRET_KEY` is missing or set to insecure defaults in non-debug environments.
+- **Unthrottled Health Check Probes**: Whitelisted `/api/health/` and monitoring routes from API rate limiters to support continuous uptime monitoring.
+
+---
+
 ## [2.0.0] - 2026-10-06
 
 Major feature release introducing Administrative Student Roster Synchronization. This establishes a "Closed Registration" architectural posture where user accounts are strictly imported and managed by administrators via Excel/CSV, eliminating open public registration.

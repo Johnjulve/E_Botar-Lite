@@ -2,7 +2,7 @@
  * Application Constants for E-Botar Lite
  */
 
-export const APP_VERSION = '2.0.0';
+export const APP_VERSION = '3.0.0';
 
 export const API_BASE_URL = import.meta.env.DEV ? '/api/v1' : (import.meta.env.VITE_API_BASE_URL || '/api/v1');
 

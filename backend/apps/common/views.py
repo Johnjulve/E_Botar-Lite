@@ -54,7 +54,7 @@ class VersionView(APIView):
 
     def get(self, request):
         return Response({
-            'version': '1.1.0',
+            'version': '3.0.0',
             'api_version': 'v1',
             'system': 'E-Botar Lite (Blockchain Voting System)'
         })
